@@ -56,6 +56,8 @@ int main()
     int y = 31; 
 
     gpio_set_irq_enabled_with_callback(BUTTON_A, GPIO_IRQ_EDGE_FALL, true, &callback_botao);
+    gpio_set_irq_enabled_with_callback(JOYSTICK_BTN, GPIO_IRQ_EDGE_FALL, true, &callback_botao);
+
     while (true) {
 
         movimento_vermelho_x();
@@ -91,9 +93,9 @@ int main()
             y = 54 - ((adc_valor_x) / 64);
         }
 
-        ssd1306_rect(&display, 3, 3, 122, 60, pintar, !pintar); // Desenha um retângulo
-        ssd1306_rect(&display, y, x, 8, 8, pintar, pintar); // Desenha um retângulo        
-        ssd1306_send_data(&display); // Atualiza o display
+        ssd1306_rect(&display, 3, 3, 122, 60, pintar, !pintar);
+        ssd1306_rect(&display, y, x, 8, 8, pintar, pintar);         
+        ssd1306_send_data(&display); 
     }
 }
 
@@ -160,19 +162,14 @@ void movimento_vermelho_x(){
     adc_select_input(0);
     adc_valor_x = adc_read();
 
-    pwm_set_chan_level(pwm_gpio_to_slice_num(LED_RED),
-    pwm_gpio_to_channel(LED_RED),
-    calcular_pwm(adc_valor_x));
+    pwm_set_gpio_level(LED_RED, calcular_pwm(adc_valor_x));  
 }
 
 void movimento_azul_y(){
     adc_select_input(1);
     adc_valor_y = adc_read();
 
-
-    pwm_set_chan_level(pwm_gpio_to_slice_num(LED_BLUE),
-    pwm_gpio_to_channel(LED_BLUE),
-    calcular_pwm(adc_valor_y));
+    pwm_set_gpio_level(LED_BLUE, calcular_pwm(adc_valor_y));  
 }
 
 uint16_t calcular_pwm(int valor_adc) {
