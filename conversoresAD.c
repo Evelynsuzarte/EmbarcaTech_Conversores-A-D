@@ -6,8 +6,8 @@
 #include "hardware/i2c.h"
 #include "ssd1306.h"
 
-#define LED_RED 11
-#define LED_GREEN 12
+#define LED_RED 12
+#define LED_GREEN 11
 #define LED_BLUE 13
 #define BUTTON_A 5
 #define JOYSTICK_X 26
@@ -161,6 +161,7 @@ void callback_botao(uint gpio, uint32_t events) {
 void movimento_vermelho_x(){
     adc_select_input(0);
     adc_valor_x = adc_read();
+    printf("ADC X: %d\n", adc_read());
 
     pwm_set_gpio_level(LED_RED, calcular_pwm(adc_valor_x));  
 }
@@ -168,14 +169,11 @@ void movimento_vermelho_x(){
 void movimento_azul_y(){
     adc_select_input(1);
     adc_valor_y = adc_read();
+    printf("ADC Y: %d\n", adc_read());
 
     pwm_set_gpio_level(LED_BLUE, calcular_pwm(adc_valor_y));  
 }
 
 uint16_t calcular_pwm(int valor_adc) {
-    if (valor_adc > VALOR_CENTRAL) {
-        return (valor_adc - VALOR_CENTRAL) * (ADC_MAX / VALOR_CENTRAL);
-    } else {
-        return (VALOR_CENTRAL - valor_adc) * (ADC_MAX / VALOR_CENTRAL);
-    }
+    return (uint16_t)((abs(valor_adc - VALOR_CENTRAL) * PWM_MAX) / VALOR_CENTRAL);
 }
