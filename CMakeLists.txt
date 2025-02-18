@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(conversoresAD conversoresAD.c )
+add_executable(conversoresAD conversoresAD.c inc/ssd1306.c)
 
 pico_set_program_name(conversoresAD "conversoresAD")
 pico_set_program_version(conversoresAD "0.1")
@@ -55,6 +55,7 @@ target_link_libraries(conversoresAD
 # Add the standard include files to the build
 target_include_directories(conversoresAD PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/inc
 )
 
 # Add any user requested libraries
