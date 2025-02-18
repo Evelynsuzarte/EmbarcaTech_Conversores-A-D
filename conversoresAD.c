@@ -142,19 +142,15 @@ void callback_botao(uint gpio, uint32_t events) {
 
     if (tempo_atual - ultimo_tempo >= TEMPO_DEBOUNCE) {
         if(gpio == BUTTON_A) {
-            if (led_R_ativado) {
-                pwm_set_gpio_level(LED_RED, 0); // Apaga o LED vermelho
-            } else {
-                pwm_set_gpio_level(LED_RED, PWM_MAX); // Acende o LED vermelho
-            }
-            if (led_B_ativado) {
-                pwm_set_gpio_level(LED_BLUE, 0); // Apaga o LED azul
-            } else {
-                pwm_set_gpio_level(LED_BLUE, PWM_MAX); // Acende o LED azul
-            }
+            pwm_set_enabled(slice_r, led_R_ativado); 
+            pwm_set_enabled(slice_b, led_B_ativado); 
             led_R_ativado = !led_R_ativado;
             led_B_ativado = !led_B_ativado;
-    }
+        }        
+        else if(gpio == JOYSTICK_BTN){
+            led_G_ativado = !led_G_ativado;
+            gpio_put(LED_GREEN, led_G_ativado);
+        }
     
     ultimo_tempo = tempo_atual;
     }
@@ -162,24 +158,21 @@ void callback_botao(uint gpio, uint32_t events) {
 
 void movimento_vermelho_x(){
     adc_select_input(0);
-    valor_x = adc_read();
-
-    adc_valor_x = calcular_pwm(valor_x);
+    adc_valor_x = adc_read();
 
     pwm_set_chan_level(pwm_gpio_to_slice_num(LED_RED),
     pwm_gpio_to_channel(LED_RED),
-    adc_valor_x);
+    calcular_pwm(adc_valor_x));
 }
 
 void movimento_azul_y(){
     adc_select_input(1);
-    valor_y = adc_read();
+    adc_valor_y = adc_read();
 
-    adc_valor_y = calcular_pwm(valor_y);
 
     pwm_set_chan_level(pwm_gpio_to_slice_num(LED_BLUE),
     pwm_gpio_to_channel(LED_BLUE),
-    adc_valor_y);
+    calcular_pwm(adc_valor_y));
 }
 
 uint16_t calcular_pwm(int valor_adc) {
