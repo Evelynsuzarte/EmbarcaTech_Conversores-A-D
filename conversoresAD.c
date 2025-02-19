@@ -4,6 +4,7 @@
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
 #include "hardware/i2c.h"
+#include "hardware/clocks.h"
 #include "ssd1306.h"
 
 #define LED_RED 12
@@ -18,7 +19,7 @@
 #define I2C_PORT i2c1
 #define I2C_ADDRESS 0x3C
 #define PWM_MAX 255
-#define ADC_MAX 4095
+#define PWM_FREQ 20000
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
 #define DISPLAY_SDA 14
@@ -63,8 +64,8 @@ int main()
         movimento_vermelho_x();
         movimento_azul_y();
 
-        pwm_set_gpio_level(LED_RED, valor_y);  
-        pwm_set_gpio_level(LED_BLUE, valor_x); 
+        pwm_set_gpio_level(LED_RED, valor_x);  
+        pwm_set_gpio_level(LED_BLUE, valor_y); 
 
         ssd1306_fill(&display, !pintar);
 
@@ -96,6 +97,8 @@ int main()
         ssd1306_rect(&display, 3, 3, 122, 60, pintar, !pintar);
         ssd1306_rect(&display, y, x, 8, 8, pintar, pintar);         
         ssd1306_send_data(&display); 
+
+        sleep_ms(100);
     }
 }
 
@@ -116,10 +119,15 @@ void setup() {
 
     slice_r = pwm_gpio_to_slice_num(LED_RED);
     slice_b = pwm_gpio_to_slice_num(LED_BLUE);
+    pwm_set_clkdiv(slice_r, (float)clock_get_hz(clk_sys) / PWM_FREQ / (PWM_MAX + 1));
+    pwm_set_clkdiv(slice_b, (float)clock_get_hz(clk_sys) / PWM_FREQ / (PWM_MAX + 1));
     pwm_set_wrap(slice_r, PWM_MAX);
     pwm_set_wrap(slice_b, PWM_MAX);
     pwm_set_enabled(slice_r, true);
     pwm_set_enabled(slice_b, true);
+    led_R_ativado = 1;
+    led_B_ativado = 1;
+
     
     //DISPLAY
     i2c_init(I2C_PORT, 400 * 1000);
@@ -137,6 +145,15 @@ void setup() {
     adc_init();
     adc_gpio_init(JOYSTICK_X);
     adc_gpio_init(JOYSTICK_Y);
+
+    //botao
+    gpio_init(BUTTON_A);
+    gpio_set_dir(BUTTON_A, GPIO_IN);
+    gpio_pull_up(BUTTON_A);
+
+    gpio_init(JOYSTICK_BTN);
+    gpio_set_dir(JOYSTICK_BTN, GPIO_IN);
+    gpio_pull_up(JOYSTICK_BTN);
 }
 
 void callback_botao(uint gpio, uint32_t events) {
@@ -144,10 +161,10 @@ void callback_botao(uint gpio, uint32_t events) {
 
     if (tempo_atual - ultimo_tempo >= TEMPO_DEBOUNCE) {
         if(gpio == BUTTON_A) {
-            pwm_set_enabled(slice_r, led_R_ativado); 
-            pwm_set_enabled(slice_b, led_B_ativado); 
             led_R_ativado = !led_R_ativado;
             led_B_ativado = !led_B_ativado;
+            pwm_set_enabled(slice_r, led_R_ativado); 
+            pwm_set_enabled(slice_b, led_B_ativado); 
         }        
         else if(gpio == JOYSTICK_BTN){
             led_G_ativado = !led_G_ativado;

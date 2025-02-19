@@ -49,6 +49,8 @@
         "pio.h": "c",
         "stdlib.h": "c",
         "timer.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "i2c.h": "c",
+        "clocks.h": "c"
     }
 }

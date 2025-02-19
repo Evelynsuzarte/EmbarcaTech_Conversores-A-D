@@ -50,6 +50,7 @@ target_link_libraries(conversoresAD
         hardware_pwm
         hardware_adc
         hardware_i2c
+        hardware_clocks
         )
 
 # Add the standard include files to the build
