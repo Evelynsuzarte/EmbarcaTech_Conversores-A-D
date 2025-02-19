@@ -64,9 +64,6 @@ int main()
         movimento_vermelho_x();
         movimento_azul_y();
 
-        pwm_set_gpio_level(LED_RED, valor_x);  
-        pwm_set_gpio_level(LED_BLUE, valor_y); 
-
         ssd1306_fill(&display, !pintar);
 
         if(led_G_ativado){
@@ -179,6 +176,7 @@ void movimento_vermelho_x(){
     adc_select_input(0);
     adc_valor_x = adc_read();
     printf("ADC X: %d\n", adc_read());
+    sleep_us(10);
 
     pwm_set_gpio_level(LED_RED, calcular_pwm(adc_valor_x));  
 }
@@ -187,6 +185,7 @@ void movimento_azul_y(){
     adc_select_input(1);
     adc_valor_y = adc_read();
     printf("ADC Y: %d\n", adc_read());
+    sleep_us(10);
 
     pwm_set_gpio_level(LED_BLUE, calcular_pwm(adc_valor_y));  
 }
